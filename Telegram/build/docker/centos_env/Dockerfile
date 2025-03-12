@@ -5,7 +5,7 @@
 {%- set QT = "6.8.2" -%}
 {%- set QT_TAG = "v" ~ QT -%}
 {%- set CFLAGS_DEBUG = "$CFLAGS -O0 -fno-lto -U_FORTIFY_SOURCE" -%}
-{%- set LibrariesPath = "/usr/src/Libraries" -%}
+{%- set LibrariesPath = "/workspace/apps/Libraries" -%}
 
 # syntax=docker/dockerfile:1
 
@@ -873,5 +873,5 @@ ENV BOOST_INCLUDEDIR /usr/include/boost1.78
 ENV BOOST_LIBRARYDIR /usr/lib64/boost1.78
 
 USER user
-VOLUME [ "/usr/src/tdesktop" ]
-CMD [ "/usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh" ]
+VOLUME [ "/workspace/apps/tdesktop" ]
+CMD [ "/workspace/apps/tdesktop/Telegram/build/docker/centos_env/build.sh" ]

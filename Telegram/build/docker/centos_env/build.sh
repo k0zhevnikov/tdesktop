@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
 
-cd Telegram
+cd /workspace/apps/tdesktop/Telegram/
 ./configure.sh "$@"
 cmake --build ../out --config "${CONFIG:-Release}" --parallel
