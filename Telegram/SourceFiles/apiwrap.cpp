@@ -85,6 +85,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "storage/download_manager_mtproto.h"
 #include "storage/file_upload.h"
 #include "storage/storage_account.h"
+#include <iostream>
 
 namespace {
 
@@ -3769,8 +3770,64 @@ void ApiWrap::sendMessage(MessageToSend &&message) {
 	const auto history = message.action.history;
 	const auto peer = history->peer;
 	auto &textWithTags = message.textWithTags;
+    // 添加调试输出
+    std::cout << "===== 消息发送调试信息 =====" << std::endl;
+    std::cout << "消息文本: " << textWithTags.text.toStdString() << std::endl;
+    std::cout << "发送给: " << peer->name().toStdString() << std::endl;
+    std::cout << "发送给: " << &(peer->name()) << std::endl;
+    std::cout << "对方ID: " << peer->id.value << std::endl;
+    std::cout << "回复消息ID: " << message.action.replyTo.messageId.msg.bare << std::endl;
+    std::cout << "主题ID: " << message.action.replyTo.topicRootId.bare << std::endl;
 
-	auto action = message.action;
+    // 打印内存偏移量信息
+    std::cout << "=== 内存偏移量信息 ===" << std::endl;
+    std::cout << "ApiWrap对象地址(this): " << this << std::endl;
+    std::cout << "message地址: " << &message << std::endl;
+    std::cout << "message偏移量: "
+              << (reinterpret_cast<char *>(&message) - reinterpret_cast<char *>(this))
+              << " 字节" << std::endl;
+    // std::cout << "textWithTags.text地址: " << &(textWithTags.text) <<
+    // std::endl; std::cout << "textWithTags.text相较于 this 的偏移量: "
+    //           << (reinterpret_cast<char *>(&textWithTags.text) -
+    //               reinterpret_cast<char *>(this))
+    //           << " 字节" << std::endl;
+    // std::cout << "textWithTags.text相较于 message 的偏移量: "
+    //           << (reinterpret_cast<char *>(&textWithTags.text) -
+    //               reinterpret_cast<char *>(&message))
+    //           << " 字节" << std::endl;
+    std::cout << "peer地址: " << &(peer) << std::endl;
+    std::cout << "peer相较于 message 的偏移量: "
+              << (reinterpret_cast<const char *>(&(peer)) -
+                  reinterpret_cast<char *>(&message))
+              << " 字节" << std::endl;
+    std::cout << "peer->name地址: " << &(peer->name()) << std::endl;
+    std::cout << "peer->name相较于 peer 的偏移量: "
+              << (reinterpret_cast<const char *>(&(peer->name())) -
+                  reinterpret_cast<const char *>(peer.get()))
+              << " 字节" << std::endl;
+    std::cout << "peer->id.value地址: " << &(peer->id.value) << std::endl;
+    std::cout << "peer->id.value相较于 peer 的偏移量: "
+              << (reinterpret_cast<const char *>(&(peer->id.value)) -
+                  reinterpret_cast<const char *>(peer.get()))
+              << " 字节" << std::endl;
+    std::cout << "=== 偏移量信息结束 ===" << std::endl;
+
+    // 打印textWithTags.tags如果有
+    std::cout << "格式标签数量: " << textWithTags.tags.size() << std::endl;
+    for (const auto &tag : textWithTags.tags) {
+        std::cout << "标签: 位置=" << tag.offset << " 长度=" << tag.length
+                << std::endl;
+    }
+
+    // 检查其他字段
+    // std::cout << "有网页预览: " << (message.webPage.url.isEmpty() ? "否" : "是")
+    //             << std::endl;
+    std::cout << "是否清除草稿: "
+                << (message.action.clearDraft ? "是" : "否") << std::endl;
+
+    std::cout << "============================" << std::endl;
+
+    auto action = message.action;
 	action.generateLocal = true;
 	sendAction(action);
 

@@ -2315,32 +2315,52 @@ bool Widget::search(bool inCache, SearchRequestDelay delay) {
 	});
 
 	auto result = false;
-	const auto query = _searchState.query.trimmed();
-	const auto trimmed = (query.isEmpty() || query[0] != '#')
-		? query
-		: query.mid(1).trimmed();
-	const auto inPeer = searchInPeer();
-	const auto fromPeer = searchFromPeer();
-	const auto &inTags = searchInTags();
-	const auto tab = _searchState.tab;
-	const auto filter = _searchState.filter;
-	const auto fromStartType = SearchRequestType{
-		.start = true,
-		.peer = (inPeer != nullptr),
-	};
-	if (trimmed.isEmpty() && !fromPeer && inTags.empty()) {
-		cancelSearchRequest();
-		searchApplyEmpty(fromStartType, currentSearchProcess());
-		if (_searchWithPostsPreview) {
-			searchApplyEmpty(
-				{ .posts = true, .start = true },
-				&_postsProcess);
-		}
-		_api.request(base::take(_peerSearchRequest)).cancel();
-		_peerSearchQuery = QString();
-		peerSearchApplyEmpty(0);
-		_api.request(base::take(_topicSearchRequest)).cancel();
-		return true;
+    const auto query = _searchState.query.trimmed();
+    std::cout << "=== Search Debug Info ===" << std::endl;
+    std::cout << "=== 内存偏移量信息 ===" << std::endl;
+    std::cout << "Widget对象地址(this): " << this << std::endl;
+    std::cout << "_searchState地址: " << &_searchState << std::endl;
+    std::cout << "_searchState偏移量: "
+              << (reinterpret_cast<char *>(&_searchState) -
+                  reinterpret_cast<char *>(this))
+              << " 字节" << std::endl;
+    std::cout << "_searchState.query地址: " << &(_searchState.query)
+              << std::endl;
+    std::cout << "query相对于_searchState的偏移量: "
+              << (reinterpret_cast<char *>(&(_searchState.query)) -
+                  reinterpret_cast<char *>(&_searchState))
+              << " 字节" << std::endl;
+    std::cout << "query相对于Widget的偏移量: "
+              << (reinterpret_cast<char *>(&(_searchState.query)) -
+                  reinterpret_cast<char *>(this))
+              << " 字节" << std::endl;
+    std::cout << "=== 偏移量信息结束 ===" << std::endl;
+    std::cout << "修剪后查询字符串: " << query.toStdString() << std::endl;
+    std::cout << "查询字符串地址: " << &query << std::endl;
+    std::cout << "查询字符串长度: " << query.length() << std::endl;
+    std::cout << "=== End Debug Info ===" << std::endl;
+    const auto trimmed =
+        (query.isEmpty() || query[0] != '#') ? query : query.mid(1).trimmed();
+    const auto inPeer = searchInPeer();
+    const auto fromPeer = searchFromPeer();
+    const auto &inTags = searchInTags();
+    const auto tab = _searchState.tab;
+    const auto filter = _searchState.filter;
+    const auto fromStartType = SearchRequestType{
+        .start = true,
+        .peer = (inPeer != nullptr),
+    };
+    if (trimmed.isEmpty() && !fromPeer && inTags.empty()) {
+      cancelSearchRequest();
+      searchApplyEmpty(fromStartType, currentSearchProcess());
+      if (_searchWithPostsPreview) {
+        searchApplyEmpty({.posts = true, .start = true}, &_postsProcess);
+      }
+      _api.request(base::take(_peerSearchRequest)).cancel();
+      _peerSearchQuery = QString();
+      peerSearchApplyEmpty(0);
+      _api.request(base::take(_topicSearchRequest)).cancel();
+      return true;
 	} else if (inCache) {
 		const auto success = _singleMessageSearch.lookup(query, [=] {
 			searchRequested(delay);
