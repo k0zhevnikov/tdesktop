@@ -155,7 +155,7 @@ if [ "$BuildTarget" == "linux" ]; then
     fi
   fi
 
-  ./build/docker/centos_env/run.sh /workspace/apps/tdesktop/Telegram/build/docker/build.sh
+ ./build/docker/centos_env/run.sh /usr/src/tdesktop/Telegram/build/docker/build.sh
 
   echo "Copying from docker result folder."
   cp "$ReleasePath/root/$BinaryName" "$ReleasePath/$BinaryName"
